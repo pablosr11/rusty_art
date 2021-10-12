@@ -31,9 +31,8 @@ struct Entry {
 
 fn main() {
     let nfts: Vec<Entry> = parse_json("/Users/ps/repos/rusty_art/dragons.json").unwrap();
-    for i in &nfts {
-        println!("{:?}", parse_attributes(&i));
-    }
+    let attributes: Vec<&str> = nfts.iter().flat_map(|x| parse_attributes(&x)).collect();
+    println!("{:?}", attributes);
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
