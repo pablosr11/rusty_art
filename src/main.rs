@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
@@ -23,7 +23,8 @@ struct Entry {
     description: String,
     escrowAdd: String,
     seller_address: String,
-    attributes: String,
+    #[serde(deserialize_with = "transform_attributes")]
+    attributes: Vec<String>,
     skin: Option<String>,
     r#type: String,
     ranking: Option<u16>,
@@ -32,11 +33,12 @@ struct Entry {
     last_sold_price: Option<f32>,
 }
 
-impl Entry {
-    // store these as vec of strings when parsing the json
-    fn parsed_attributes<'a>(&'a self) -> Vec<&'a str> {
-        return self.attributes.split(",").collect();
-    }
+fn transform_attributes<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    Ok(s.split(",").map(|s| s.to_string()).collect::<Vec<String>>())
 }
 
 fn main() {
@@ -77,11 +79,11 @@ fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
     Ok(nfts)
 }
 
-fn build_fmap(nfts: &Vec<Entry>) -> HashMap<&str, u16> {
-    let mut freq_map: HashMap<&str, u16> = HashMap::new();
+fn build_fmap(nfts: &Vec<Entry>) -> HashMap<String, u16> {
+    let mut freq_map: HashMap<String, u16> = HashMap::new();
     for nft in nfts {
-        for attribute in nft.parsed_attributes() {
-            *freq_map.entry(attribute).or_insert(0) += 1;
+        for attribute in &nft.attributes {
+            *freq_map.entry(attribute.to_string()).or_insert(0) += 1;
         }
     }
     freq_map
