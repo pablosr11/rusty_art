@@ -40,21 +40,34 @@ impl Entry {
 }
 
 fn main() {
-    let nfts: Vec<Entry> = parse_json(PATH).unwrap();
+    let mut nfts: Vec<Entry> = parse_json(PATH).unwrap();
     let threshold: u16 = (nfts.len() as f32 * TOP) as u16;
+    let frequency_map: HashMap<String, u16> = build_fmap(&nfts);
 
-    let frequency_map = build_fmap(&nfts);
-    let rare_attributes = filter_rares(&frequency_map, &threshold);
-
-    println!("forsale {} - threshold {}", nfts.len(), threshold);
+    for nft in &mut nfts {
+        nft.ranking = calculate_ranking(nft, &frequency_map);
+        if nft.ranking.unwrap() < 500 {
+            println!(
+                "{} has ranking {} and price {}",
+                &nft.name,
+                &nft.ranking.unwrap(),
+                &nft.price
+            );
+        }
+    }
+    println!(
+        "{:?}\n- threshold {}",
+        &nfts.len(),
+        threshold
+    );
 }
 
-fn filter_rares<'a>(fmap: &'a HashMap<&str, u16>, threshold: &'a u16) -> Vec<&'a str> {
-    return fmap
-        .into_iter()
-        .filter(|entry| entry.1 < threshold)
-        .map(|(attribute, _count)| *attribute)
-        .collect::<Vec<&str>>();
+fn calculate_ranking(entry: &mut Entry, fmap: &HashMap<String, u16>) -> Option<u16> {
+    let mut count = 0;
+    for e in &entry.attributes {
+        count += fmap.get(e).unwrap();
+    }
+    Some(count)
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
