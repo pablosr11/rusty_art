@@ -1,7 +1,3 @@
-read json
-parse it
-parse attributes
-parse price, name
-save counter of attributes, occurency.
-print least occurent attributes.
+print attributes below threshold
 print names, price of entries with X uncommon attributes
+take url as input, ideally just collection

@@ -1,5 +1,5 @@
 use serde::Deserialize;
-
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -30,9 +30,18 @@ struct Entry {
 }
 
 fn main() {
-    let nfts: Vec<Entry> = parse_json("/Users/ps/repos/rusty_art/dragons.json").unwrap();
-    let attributes: Vec<&str> = nfts.iter().flat_map(|x| parse_attributes(&x)).collect();
-    println!("{:?}", attributes);
+    const PATH: &str = "/Users/ps/repos/rusty_art/full.json";
+    const TOP: f32 = 0.005;
+
+    let nfts: Vec<Entry> = parse_json(PATH).unwrap();
+    let threshold: f32 = (nfts.len() as f32 * TOP).round();
+
+    let mut freq_map: HashMap<&str, usize> = HashMap::new();
+    for nft in &nfts {
+        for attribute in parse_attributes(&nft) {
+            *freq_map.entry(attribute).or_insert(0) += 1;
+        }
+    }
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
