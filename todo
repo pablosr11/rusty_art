@@ -1,3 +1,3 @@
-print attributes below threshold
+match attributes to items
 print names, price of entries with X uncommon attributes
 take url as input, ideally just collection

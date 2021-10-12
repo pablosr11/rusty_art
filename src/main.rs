@@ -34,10 +34,20 @@ fn main() {
     const TOP: f32 = 0.005;
 
     let nfts: Vec<Entry> = parse_json(PATH).unwrap();
-    let threshold: f32 = (nfts.len() as f32 * TOP).round();
+    let threshold: u16 = (nfts.len() as f32 * TOP.round()) as u16;
 
-    let frequency_map = build_freqmap(&nfts);
+    let frequency_map = build_fmap(&nfts);
+    let rare_attributes = &frequency_map
+        .into_iter()
+        .filter(|entry| entry.1 < threshold)
+        .collect::<Vec<(&str, u16)>>();
 
+    println!(
+        "{:?}\nforsale {} - threshold {}",
+        rare_attributes,
+        nfts.len(),
+        threshold
+    )
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
@@ -47,8 +57,8 @@ fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
     Ok(nfts)
 }
 
-fn build_freqmap(nfts: &Vec<Entry>) -> HashMap<&str, usize> {
-    let mut freq_map: HashMap<&str, usize> = HashMap::new();
+fn build_fmap(nfts: &Vec<Entry>) -> HashMap<&str, u16> {
+    let mut freq_map: HashMap<&str, u16> = HashMap::new();
     for nft in nfts {
         for attribute in parse_attributes(&nft) {
             *freq_map.entry(attribute).or_insert(0) += 1;
