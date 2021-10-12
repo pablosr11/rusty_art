@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+#[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct Entry {
     id: u32,
@@ -29,12 +30,19 @@ struct Entry {
 }
 
 fn main() {
-    parse("/Users/ps/repos/rusty_art/full.json").unwrap();
+    let nfts: Vec<Entry> = parse_json("/Users/ps/repos/rusty_art/dragons.json").unwrap();
+    for i in &nfts {
+        println!("{:?}", parse_attributes(&i));
+    }
 }
 
-fn parse<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
+fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
-    let u: Vec<Entry> = serde_json::from_reader(reader)?;
-    Ok(u)
+    let nfts: Vec<Entry> = serde_json::from_reader(reader)?;
+    Ok(nfts)
+}
+
+fn parse_attributes(e: &Entry) -> Vec<&str> {
+    return e.attributes.split(",").collect();
 }
