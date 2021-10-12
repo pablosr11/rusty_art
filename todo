@@ -1,0 +1,7 @@
+read json
+parse it
+parse attributes
+parse price, name
+save counter of attributes, occurency.
+print least occurent attributes.
+print names, price of entries with X uncommon attributes
