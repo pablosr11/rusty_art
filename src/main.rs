@@ -36,12 +36,8 @@ fn main() {
     let nfts: Vec<Entry> = parse_json(PATH).unwrap();
     let threshold: f32 = (nfts.len() as f32 * TOP).round();
 
-    let mut freq_map: HashMap<&str, usize> = HashMap::new();
-    for nft in &nfts {
-        for attribute in parse_attributes(&nft) {
-            *freq_map.entry(attribute).or_insert(0) += 1;
-        }
-    }
+    let frequency_map = build_freqmap(&nfts);
+
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
@@ -49,6 +45,16 @@ fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
     let reader = BufReader::new(file);
     let nfts: Vec<Entry> = serde_json::from_reader(reader)?;
     Ok(nfts)
+}
+
+fn build_freqmap(nfts: &Vec<Entry>) -> HashMap<&str, usize> {
+    let mut freq_map: HashMap<&str, usize> = HashMap::new();
+    for nft in nfts {
+        for attribute in parse_attributes(&nft) {
+            *freq_map.entry(attribute).or_insert(0) += 1;
+        }
+    }
+    freq_map
 }
 
 fn parse_attributes(e: &Entry) -> Vec<&str> {
