@@ -1,3 +1,4 @@
-match attributes to items
-print names, price of entries with X uncommon attributes
+
+attach ranking to each entry: add points for every attribute, the least, the better.
+refactor (parse str to vecofstr for attributes)
 take url as input, ideally just collection

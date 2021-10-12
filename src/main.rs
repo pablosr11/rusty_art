@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-const PATH: &str = "/Users/ps/repos/rusty_art/kam1.json";
+const PATH: &str = "/Users/ps/repos/rusty_art/dd.json";
 const TOP: f32 = 0.004;
 
 #[allow(non_snake_case)]
@@ -44,21 +44,17 @@ fn main() {
     let threshold: u16 = (nfts.len() as f32 * TOP) as u16;
 
     let frequency_map = build_fmap(&nfts);
-    let rare_attributes = &frequency_map
-        .into_iter()
-        .filter(|entry| entry.1 < threshold)
-        .map(|(attribute, _count)| attribute)
-        .collect::<Vec<&str>>();
-
-    for nft in &nfts {
-        for r in rare_attributes {
-            if nft.parsed_attributes().contains(&r) {
-                println!("{} - {}", nft.name, nft.price)
-            }
-        }
-    }
+    let rare_attributes = filter_rares(&frequency_map, &threshold);
 
     println!("forsale {} - threshold {}", nfts.len(), threshold);
+}
+
+fn filter_rares<'a>(fmap: &'a HashMap<&str, u16>, threshold: &'a u16) -> Vec<&'a str> {
+    return fmap
+        .into_iter()
+        .filter(|entry| entry.1 < threshold)
+        .map(|(attribute, _count)| *attribute)
+        .collect::<Vec<&str>>();
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
