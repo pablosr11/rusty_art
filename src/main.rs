@@ -5,6 +5,9 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+const PATH: &str = "/Users/ps/repos/rusty_art/kam1.json";
+const TOP: f32 = 0.008;
+
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct Entry {
@@ -27,6 +30,13 @@ struct Entry {
     buyer_add: Option<String>,
     blockhash: Option<String>,
     last_sold_price: Option<f32>,
+}
+
+impl Entry {
+    // store these as vec of strings when parsing the json
+    fn parsed_attributes<'a>(&'a self) -> Vec<&'a str> {
+        return self.attributes.split(",").collect();
+    }
 }
 
 fn main() {
@@ -60,13 +70,9 @@ fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
 fn build_fmap(nfts: &Vec<Entry>) -> HashMap<&str, u16> {
     let mut freq_map: HashMap<&str, u16> = HashMap::new();
     for nft in nfts {
-        for attribute in parse_attributes(&nft) {
+        for attribute in nft.parsed_attributes() {
             *freq_map.entry(attribute).or_insert(0) += 1;
         }
     }
     freq_map
-}
-
-fn parse_attributes(e: &Entry) -> Vec<&str> {
-    return e.attributes.split(",").collect();
 }
