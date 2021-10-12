@@ -6,7 +6,7 @@ use std::io::BufReader;
 use std::path::Path;
 
 const PATH: &str = "/Users/ps/repos/rusty_art/kam1.json";
-const TOP: f32 = 0.008;
+const TOP: f32 = 0.004;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
@@ -40,24 +40,25 @@ impl Entry {
 }
 
 fn main() {
-    const PATH: &str = "/Users/ps/repos/rusty_art/full.json";
-    const TOP: f32 = 0.005;
-
     let nfts: Vec<Entry> = parse_json(PATH).unwrap();
-    let threshold: u16 = (nfts.len() as f32 * TOP.round()) as u16;
+    let threshold: u16 = (nfts.len() as f32 * TOP) as u16;
 
     let frequency_map = build_fmap(&nfts);
     let rare_attributes = &frequency_map
         .into_iter()
         .filter(|entry| entry.1 < threshold)
-        .collect::<Vec<(&str, u16)>>();
+        .map(|(attribute, _count)| attribute)
+        .collect::<Vec<&str>>();
 
-    println!(
-        "{:?}\nforsale {} - threshold {}",
-        rare_attributes,
-        nfts.len(),
-        threshold
-    )
+    for nft in &nfts {
+        for r in rare_attributes {
+            if nft.parsed_attributes().contains(&r) {
+                println!("{} - {}", nft.name, nft.price)
+            }
+        }
+    }
+
+    println!("forsale {} - threshold {}", nfts.len(), threshold);
 }
 
 fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
