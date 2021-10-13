@@ -1,4 +1,1 @@
-
-show bottom N by price. think about how to rank.
 refactor (parse str to vecofstr for attributes)
-take url as input, ideally just collection

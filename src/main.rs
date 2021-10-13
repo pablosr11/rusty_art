@@ -6,6 +6,8 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+const _COLLECTION: &str = "";
+const TOP: f32 = 1.0;
 const _ITEM_FREQ: u16 = 7; // max frequency of item to show the nft
 
 #[allow(non_snake_case)]
@@ -51,15 +53,17 @@ fn main() {
     nfts.sort_by(|a, b| b.ranking.cmp(&a.ranking));
 
     let top_ranks = &nfts[..threshold];
-    println!("Top {} entries", &threshold);
+    println!("Top {} entries out of {}", &threshold, &nfts.len());
     for n in top_ranks {
-        println!(
-            "{} - {} - {}\n{:?}",
-            n.ranking.unwrap(),
-            n.price,
-            n.name,
-            n.attributes
-        )
+        if n.ranking.unwrap() > 0 {
+            println!(
+                "{} - {} - {} - {:?}",
+                n.ranking.unwrap(),
+                n.price,
+                n.name,
+                n.attributes.len()
+            )
+        }
     }
 }
 
