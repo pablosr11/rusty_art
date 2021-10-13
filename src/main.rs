@@ -6,8 +6,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-const _COLLECTION: &str = "";
-const TOP: f32 = 1.0;
+const _ITEM_FREQ: u16 = 7; // max frequency of item to show the nft
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
@@ -48,8 +47,8 @@ fn main() {
     let threshold: usize = ((&nfts.len() / 100) as f32 * TOP as f32).ceil() as usize;
 
     let frequency_map: HashMap<String, u16> = build_fmap(&nfts);
-    rank(&mut nfts, &frequency_map);
-    nfts.sort_by(|a, b| a.ranking.cmp(&b.ranking));
+    rank(&mut nfts, &frequency_map, &_ITEM_FREQ);
+    nfts.sort_by(|a, b| b.ranking.cmp(&a.ranking));
 
     let top_ranks = &nfts[..threshold];
     println!("Top {} entries", &threshold);
@@ -64,16 +63,22 @@ fn main() {
     }
 }
 
-fn rank(entries: &mut Vec<Entry>, fmap: &HashMap<String, u16>) {
+fn rank(entries: &mut Vec<Entry>, fmap: &HashMap<String, u16>, threshold: &u16) {
     for nft in entries {
-        nft.ranking = calculate_ranking(nft, fmap);
+        nft.ranking = calculate_ranking(nft, fmap, threshold);
     }
 }
 
-fn calculate_ranking(entry: &mut Entry, fmap: &HashMap<String, u16>) -> Option<u16> {
+fn calculate_ranking(
+    entry: &mut Entry,
+    fmap: &HashMap<String, u16>,
+    threshold: &u16,
+) -> Option<u16> {
     let mut count = 0;
     for e in &entry.attributes {
-        count += fmap.get(e).unwrap();
+        if fmap.get(e).unwrap() < threshold {
+            count += 1;
+        }
     }
     Some(count)
 }
