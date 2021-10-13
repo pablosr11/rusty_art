@@ -48,6 +48,7 @@ fn main() {
     let threshold: usize = ((&nfts.len() / 100) as f32 * TOP as f32).ceil() as usize;
 
     let frequency_map: HashMap<String, u16> = build_fmap(&nfts);
+    rank(&mut nfts, &frequency_map);
     nfts.sort_by(|a, b| a.ranking.cmp(&b.ranking));
 
     let top_ranks = &nfts[..threshold];
@@ -62,11 +63,11 @@ fn main() {
         )
     }
 }
-    println!(
-        "{:?}\n- threshold {}",
-        &nfts.len(),
-        threshold
-    );
+
+fn rank(entries: &mut Vec<Entry>, fmap: &HashMap<String, u16>) {
+    for nft in entries {
+        nft.ranking = calculate_ranking(nft, fmap);
+    }
 }
 
 fn calculate_ranking(entry: &mut Entry, fmap: &HashMap<String, u16>) -> Option<u16> {
