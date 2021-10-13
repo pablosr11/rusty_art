@@ -1,3 +1,4 @@
+use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use std::error::Error;
@@ -43,19 +44,24 @@ where
 
 fn main() {
     let mut nfts: Vec<Entry> = _download_data(_COLLECTION);
-    let frequency_map: HashMap<String, u16> = build_fmap(&nfts);
+    // let mut nfts: Vec<Entry> = _parse_json("/Users/ps/repos/rusty_art/dd.json").unwrap();
+    let threshold: usize = ((&nfts.len() / 100) as f32 * TOP as f32).ceil() as usize;
 
-    for nft in &mut nfts {
-        nft.ranking = calculate_ranking(nft, &frequency_map);
-        if nft.ranking.unwrap() < 500 {
-            println!(
-                "{} has ranking {} and price {}",
-                &nft.name,
-                &nft.ranking.unwrap(),
-                &nft.price
-            );
-        }
+    let frequency_map: HashMap<String, u16> = build_fmap(&nfts);
+    nfts.sort_by(|a, b| a.ranking.cmp(&b.ranking));
+
+    let top_ranks = &nfts[..threshold];
+    println!("Top {} entries", &threshold);
+    for n in top_ranks {
+        println!(
+            "{} - {} - {}\n{:?}",
+            n.ranking.unwrap(),
+            n.price,
+            n.name,
+            n.attributes
+        )
     }
+}
     println!(
         "{:?}\n- threshold {}",
         &nfts.len(),
