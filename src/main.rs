@@ -42,8 +42,7 @@ where
 }
 
 fn main() {
-    let mut nfts: Vec<Entry> = parse_json(PATH).unwrap();
-    let threshold: u16 = (nfts.len() as f32 * TOP) as u16;
+    let mut nfts: Vec<Entry> = _download_data(_COLLECTION);
     let frequency_map: HashMap<String, u16> = build_fmap(&nfts);
 
     for nft in &mut nfts {
@@ -87,4 +86,51 @@ fn build_fmap(nfts: &Vec<Entry>) -> HashMap<String, u16> {
         }
     }
     freq_map
+}
+
+fn _download_data(collection: &str) -> Vec<Entry> {
+    let client = reqwest::blocking::Client::new();
+    let url = format!(
+        "{}{}",
+        "https://qzlsklfacc.medianetwork.cloud/nft_for_sale?collection=", collection
+    );
+    client
+        .get(url)
+        .headers(_construct_headers())
+        .send()
+        .unwrap()
+        .json()
+        .unwrap()
+}
+
+fn _construct_headers() -> HeaderMap {
+    let mut headers = HeaderMap::new();
+    headers.insert("accept", HeaderValue::from_static("*/*"));
+    headers.insert("origin", HeaderValue::from_static("https://solanart.io"));
+    headers.insert(
+        "authority",
+        HeaderValue::from_static("qzlsklfacc.medianetwork.cloud"),
+    );
+    headers.insert(
+        "sec-ch-ua",
+        HeaderValue::from_static(
+            "\"Chromium\";v=\"94\", \"Google Chrome\";v=\"94\", \";Not A Brand\";v=\"99\"",
+        ),
+    );
+    headers.insert("sec-ch-ua-mobile", HeaderValue::from_static("?0"));
+    headers.insert("user-agent", HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36"));
+    headers.insert("sec-ch-ua-platform", HeaderValue::from_static("macOS"));
+    headers.insert("sec-fetch-site", HeaderValue::from_static("cross-site"));
+    headers.insert("sec-fetch-mode", HeaderValue::from_static("cors"));
+    headers.insert("sec-getch-dest", HeaderValue::from_static("empty"));
+    headers.insert("referer", HeaderValue::from_static("https://solanart.io/"));
+    headers.insert(
+        "accept-language",
+        HeaderValue::from_static("en-GB,en-US;q=0.9,en;q=0.8"),
+    );
+    headers.insert(
+        "if-none-match",
+        HeaderValue::from_static("W/\"110f20-2iRHziaYe8i1E4bCDaDV/5aiOVI\""),
+    );
+    headers
 }
