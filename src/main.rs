@@ -5,8 +5,8 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-const PATH: &str = "/Users/ps/repos/rusty_art/dd.json";
-const TOP: f32 = 0.004;
+const _COLLECTION: &str = "";
+const TOP: f32 = 1.0;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
@@ -38,7 +38,7 @@ where
     D: Deserializer<'de>,
 {
     let s: String = Deserialize::deserialize(deserializer)?;
-    Ok(s.split(",").map(|s| s.to_string()).collect::<Vec<String>>())
+    Ok(s.split(',').map(|s| s.to_string()).collect::<Vec<String>>())
 }
 
 fn main() {
@@ -71,14 +71,14 @@ fn calculate_ranking(entry: &mut Entry, fmap: &HashMap<String, u16>) -> Option<u
     Some(count)
 }
 
-fn parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
+fn _parse_json<P: AsRef<Path>>(path: P) -> Result<Vec<Entry>, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let nfts: Vec<Entry> = serde_json::from_reader(reader)?;
     Ok(nfts)
 }
 
-fn build_fmap(nfts: &Vec<Entry>) -> HashMap<String, u16> {
+fn build_fmap(nfts: &[Entry]) -> HashMap<String, u16> {
     let mut freq_map: HashMap<String, u16> = HashMap::new();
     for nft in nfts {
         for attribute in &nft.attributes {
