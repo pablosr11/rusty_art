@@ -6,6 +6,9 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+const _COLLECTION: &str = "";
+const TOP: f32 = 3.0;
+const _ITEM_FREQ: u16 = 5; // max frequency of item to show the nft
 const _PRICE: f32 = 2.0;
 
 #[allow(non_snake_case)]
@@ -78,7 +81,7 @@ fn calculate_ranking(
 ) -> Option<u16> {
     let mut count = 0;
     for e in &entry.attributes {
-        if fmap.get(e).unwrap() < threshold {
+        if fmap.get(e).unwrap() <= threshold {
             count += 1;
         }
     }
