@@ -16,14 +16,14 @@ const _PRICE: f32 = 2.0;
 struct Entry {
     id: u32,
     token_add: String,
-    number: u32,
-    currency: String,
+    number: Option<u32>,
+    currency: Option<String>,
     price: f32,
     link_img: String,
     for_sale: u8,
-    programId: String,
+    programId: Option<String>,
     name: String,
-    description: String,
+    description: Option<String>,
     escrowAdd: String,
     seller_address: String,
     #[serde(deserialize_with = "transform_attributes")]
